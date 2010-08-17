@@ -210,13 +210,15 @@ public class CallTemplateWithStyle extends CallTemplateWithContextSetting
 				}
 				if (!found)
 				{
-					LOG.error("Argument '" + key + "' not found as PageCriteria on " + target + ". Calling element is "
+					LOG.error("Argument '" + key + "' not found as PageCriterium on " + target + ". Calling element is "
 							+ ics.ResolveVariables("CS.elementname") + ". Arguments are: " + m.keySet().toString()
 							+ ". PageCriteria: " + Arrays.asList(pc));
 					//we could correct this by calling as an element
 					// or by removing the argument
-					if (fixPageCriteria)
+					if (fixPageCriteria){
 						i.remove();
+						LOG.warn("Argument '" + key + "' is removed from the call to '" + target + "' as it is not a PageCriterium.");
+					}
 
 				}
 			}
