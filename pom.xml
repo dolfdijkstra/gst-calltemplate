@@ -20,7 +20,7 @@
         </developer>
     </developers>
     <scm>
-        <connection>scm:svn:http://www.nl.fatwire.com/viewvc/dta/contrib/gst-calltemplate/trunk/gsf-calltemplate</connection>
+        <connection>scm:svn:http://www.nl.fatwire.com/viewvc/dta/contrib/gst-calltemplate/trunk</connection>
         <developerConnection>scm:svn:http://www.nl.fatwire.com/svn/dta/contrib/gst-calltemplate/trunk</developerConnection>
         <url>http://www.nl.fatwire.com/viewvc/dta/contrib/gst-calltemplate/trunk</url>
     </scm>
