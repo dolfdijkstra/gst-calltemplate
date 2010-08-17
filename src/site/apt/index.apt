@@ -1,0 +1,84 @@
+     -------
+     A better CallTemplate implementation
+     ------
+
+
+<fender:calltemplate>
+
+  A better CallTemplate implementation!
+
+  This is an optimized version of <<<render:calltemplate>>>. It was created because
+  many developers struggle with specifying the optimal values for <<<context>>> and <<<style>>>. In essence it provides better default values than 
+  the out-of-the-box tag does.
+  
+  The two parameter values are changed in the following way:
+  
+  The <<<context>>> value is set to <<<"">>> (empty space) if no value is provided. This will enhance (or even enable) pagelet reuse.
+  
+  If the developer did not specify an explicit value for <<<style>>>, it is calculated at runtime. The intend is to provide better values than the default <<<pagelet>>>
+  style. This has lead in many case to too many pagelets per page, stressing Satellite Server too much.
+  
+  The values are calculated based on the caching of the current pagelet, caching of the target pagelet and if <<<cid>>> is changing in the calltemplate call from it's current value.
+  The following table shows the <<<style>>> values used.
+    
+*----------------*-----------------*-----------------*
+|                | Current pagelet | Current pagelet |
+|                | <caching>       | <not caching>   |
+*----------------*-----------------*-----------------*
+  Target pagelet | <<embedded>> or     | <<pagelet>> |
+  <caching>      | <<element>> if same |             |
+                 | <<<cid>>> is passed |             |
+*----------------*-----------------*-----------------*
+  Target pagelet | <<pagelet>>     | <<element>>     |
+  <not caching>  |                 |                 | 
+*----------------*-----------------*-----------------*
+   
+Installation - Overriding default CallTemplate tag
+  
+  There are two ways to use this tag. The first one is to override the default tag in the render.tld file.
+  In this way all the render:calltemplate calls will make use of the new function. This is the easiest way to make use of the new functionality.
+  
+  To deploy the functionality in this way you must change the render.tld file in <<<WEB-INF/futuretense_cs/>>> folder. 
+  You need to change the tagclass value to com.openmarket.xcelerate.jsp.render.CallTemplateWithStyle. After that you need to restart your application server.  
+
+------
+ <tag>
+    <name>calltemplate</name>
+    <tagclass>com.openmarket.xcelerate.jsp.render.CallTemplateWithStyle</tagclass>
+    <bodycontent>JSP</bodycontent>
+    [...]
+ </tag>
+--------
+
+Usage: importing tag in JSP.
+   
+     Another way to use the tag is to specify another tag in the jsp. The render tag name is changed to <fender>; this stands for <foundation render>.
+
+----
+    <%@ taglib prefix="fender" uri="http://gst.fatwire.com/foundation/fender" %>
+     
+    <fender:calltemplate slotname="StyleSheetSlot" tname='<%=ics.GetVar("StyleSheetTemplate")%>' 
+          site='<%=ics.GetVar("site")%>'  c='<%=ics.GetVar("RecoAssetType")%>' 
+          cid='<%=ics.GetVar("RecoAssetId")%>' ttype="Template" tid='<%=ics.GetVar("tid")%>'>
+         <fender:argument name="p" value='<%=ics.GetVar("p")%>' />
+         <fender:argument name="locale" value='<%=ics.GetVar("locale")%>'/>
+    </fender:calltemplate>
+----
+   
+   It must be noted that the fender tag in the tld does not implement all the render calls, like render:contentserver. Only the calltemplate tag is implemented.
+   
+Configuration options
+
+  There are several configuration options to control the behaviour of the tag. These options can be specified in futuretense_xcel.ini or overwritten by a java system property with the same name.
+  
+  * com.openmarket.xcelerate.jsp.render.CallTemplate.style
+
+    default value is empty. If a value is provided then <<all>> the render:calltemplate calls will use this style.
+    
+  * com.openmarket.xcelerate.jsp.render.CallTemplate.override
+
+    default value is false. If true the value for style that the user specified is ignored and the best guess value is used.
+
+  * com.openmarket.xcelerate.jsp.render.CallTemplate.fixPageCriteria
+
+    default value is false. If true then arguments passed that are not part of the page criteria are removed from the argument list.     
