@@ -34,6 +34,7 @@ public class CallTemplateWithStyle extends CallTemplateWithContextSetting
 {
 	private static Log LOG = LogFactory.getLog(ftMessage.PAGE_CACHE_DEBUG + ".calltemplate");
 	private static final long serialVersionUID = 6785976437241718221L;
+	private boolean configLoaded = false;
 	/**
 	 * The default style, used if present
 	 */
@@ -52,21 +53,25 @@ public class CallTemplateWithStyle extends CallTemplateWithContextSetting
 
 	}
 
-	void readProps(ICS ics)
+	void readConfig(ICS ics)
 	{
-		this.defaultStyle = getProp(ics, "style");
-		this.override = "true".equals(getProp(ics, "override"));
-		this.fixPageCriteria = "true".equals(getProp(ics, "fixPageCriteria"));
+		if (configLoaded)
+			return;
+		this.defaultStyle = getProperty(ics, "style");
+		this.override = "true".equals(getProperty(ics, "override"));
+		this.fixPageCriteria = "true".equals(getProperty(ics, "fixPageCriteria"));
+		configLoaded = true;
 
 	}
 
-	private String getProp(ICS ics, String name)
+	private String getProperty(ICS ics, String name)
 	{
 		String val = System.getProperty(CallTemplate.class.getName() + "." + name);
 		if (!Utilities.goodString(val))
 		{
-			ics.GetProperty(CallTemplate.class.getName() + "." + name,"futuretense_xcel.ini",false);
+			val = ics.GetProperty(CallTemplate.class.getName() + "." + name, "futuretense_xcel.ini", true);
 		}
+		LOG.trace(CallTemplate.class.getName() + "." + name + "=" + val);
 		return val;
 	}
 
@@ -76,12 +81,12 @@ public class CallTemplateWithStyle extends CallTemplateWithContextSetting
 	@Override
 	protected int doEndTag(ICS ics, boolean bDebug) throws Exception
 	{
-		readProps(ics);
+		readConfig(ics);
 		if (defaultStyle != null)
 		{
 			super.setStyle(defaultStyle);
 		}
-		else if (override)
+		else if (override || style == null)
 		{
 			String newStyle = fixStyle(ics);
 
@@ -164,8 +169,9 @@ public class CallTemplateWithStyle extends CallTemplateWithContextSetting
 				if (cid != null && cid.equals(pageCid))
 				{
 					//if c/cid does not change than we call this as an element, as reuse is unlikely
-					LOG.debug("Calling " + pname + " as an element from " + ics.ResolveVariables("CS.elementname")
-							+ " because cid is same as on current pagelet.");
+					if (LOG.isTraceEnabled())
+						LOG.trace("Calling " + pname + " as an element from " + ics.ResolveVariables("CS.elementname")
+								+ " because cid is same as on current pagelet.");
 					return "element";
 				}
 				else
